@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'onemoreassignment'
+rootProject.name = 'one-more-assignment'
 
 dependencyResolutionManagement {
   versionCatalogs {

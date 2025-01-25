@@ -1,4 +1,4 @@
-package com.onemoreassignment
+package com.brunoskendaj.onemoreassignment
 
 import android.app.Application
 import android.content.res.Configuration

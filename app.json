@@ -40,12 +40,18 @@
         "expo-video",
         {
           "supportsBackgroundPlayback": true,
-          "supportsPictureInPicture": true
+          "supportsPictureInPicture": true,
+          "enableCaching": true,
+          "cacheMaxSize": 50,
+          "preloadNextVideo": true
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "splash": {
+      "backgroundColor": "#19181D"
     }
   }
 }

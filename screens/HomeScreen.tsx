@@ -1,12 +1,12 @@
 import { View, YStack } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import { useWorkouts } from '@/hooks/useWorkouts';
-import { StatusBar } from 'expo-status-bar';
 import { useState, useRef, useCallback } from 'react';
 import { WorkoutItem } from '@/components/WorkoutItem';
 import { ViewToken } from 'react-native';
 import { LoadingMore } from '@/components/LoadingMore';
 import { WorkoutItemSkeleton } from '@/components';
+import { Image } from 'expo-image';
 
 export const HomeScreen = () => {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useWorkouts();
@@ -47,7 +47,13 @@ export const HomeScreen = () => {
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
         ItemSeparatorComponent={() => <View height="$2" />}
-        // ListHeaderComponent={() => <WorkoutItemSkeleton />}
+        ListHeaderComponent={() => (
+          <Image
+            source={require('../assets/images/onemor-text-logo.png')}
+            style={{ width: 100, height: 50, alignSelf: 'flex-end' }}
+            contentFit="contain"
+          />
+        )}
         onEndReached={() => {
           if (!isFetchingNextPage && hasNextPage) {
             fetchNextPage();
