@@ -1,7 +1,7 @@
 import { View, YStack } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import { useWorkouts } from '@/hooks/useWorkouts';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { WorkoutItem } from '@/components/WorkoutItem';
 import { ViewToken } from 'react-native';
 import { LoadingMore } from '@/components/LoadingMore';
@@ -12,7 +12,9 @@ export const HomeScreen = () => {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useWorkouts();
   const workouts = data?.pages.flatMap((page) => page.data) ?? [];
 
-  const [activeWorkoutId, setActiveWorkoutId] = useState<string | null>(null);
+  const [activeWorkoutId, setActiveWorkoutId] = useState<string | null>(() => {
+    return workouts[0]?.id ?? null;
+  });
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 90,
@@ -30,6 +32,12 @@ export const HomeScreen = () => {
     },
     []
   );
+
+  useEffect(() => {
+    if (!isLoading && workouts.length > 0) {
+      setActiveWorkoutId(workouts[0].id);
+    }
+  }, [isLoading, workouts]);
 
   return (
     <YStack flex={1} padding="$4">

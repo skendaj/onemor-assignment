@@ -8,6 +8,7 @@ import { ProgressIndicators } from './ProgressIndicators';
 import { WorkoutHeader } from './WorkoutHeader';
 import { WorkoutFooter } from './WorkoutFooter';
 import { MotiView } from 'moti';
+import { Easing } from 'react-native-reanimated';
 
 interface WorkoutItemProps {
   item: WorkoutPreview;
@@ -91,6 +92,7 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
 
   const changeRoutine = useCallback(
     (direction: 'next' | 'prev') => {
+      setProgress(0);
       setCurrentRoutineIndex((prev) => {
         let newIndex = direction === 'next' ? prev + 1 : prev - 1;
 
@@ -99,7 +101,6 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
 
         return newIndex;
       });
-      setProgress(0);
     },
     [item.routines.length]
   );
@@ -123,7 +124,24 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
     >
       <YStack flex={1} height={500} borderRadius="$4" overflow="hidden">
         {currentRoutine && (
-          <>
+          <MotiView
+            key={`${currentRoutine.id}-${currentRoutineIndex}`}
+            from={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            exit={{
+              opacity: 0,
+            }}
+            transition={{
+              type: 'timing',
+              duration: 400,
+              easing: Easing.bezier(0.4, 0, 0.2, 1),
+            }}
+            style={{ flex: 1 }}
+          >
             {!isVideoLoaded && item.video_cover?.thumbnail_url && (
               <Image
                 source={{ uri: item.video_cover.thumbnail_url }}
@@ -136,7 +154,6 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
             )}
             <Stack flex={1}>
               <VideoView
-                key={`${currentRoutine.id}-${currentRoutineIndex}`}
                 player={player}
                 style={{ flex: 1 }}
                 contentFit="cover"
@@ -200,7 +217,7 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
               currentRoutineIndex={currentRoutineIndex}
             />
             <WorkoutFooter currentRoutine={currentRoutine} item={item} />
-          </>
+          </MotiView>
         )}
       </YStack>
     </MotiView>
