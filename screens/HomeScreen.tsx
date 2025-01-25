@@ -33,23 +33,25 @@ export const HomeScreen = () => {
     []
   );
 
-  useEffect(() => {
-    if (!isLoading && workouts.length > 0) {
-      setActiveWorkoutId(workouts[0].id);
-    }
-  }, [isLoading, workouts]);
+  // useEffect(() => {
+  //   if (!isLoading && workouts.length > 0) {
+  //     setActiveWorkoutId(workouts[0].id);
+  //   }
+  // }, [isLoading, workouts]);
 
   return (
     <YStack flex={1} padding="$4">
       <FlashList
+        keyExtractor={(item) => item.id}
         data={isLoading ? Array(3).fill({}) : workouts}
-        renderItem={({ item }) =>
-          isLoading ? (
+        renderItem={({ item }) => {
+          console.log('item.id - activeWorkoutId:', item.id, activeWorkoutId);
+          return isLoading ? (
             <WorkoutItemSkeleton />
           ) : (
             <WorkoutItem item={item} isActive={item.id === activeWorkoutId} />
-          )
-        }
+          );
+        }}
         estimatedItemSize={100}
         onEndReachedThreshold={0.7}
         showsVerticalScrollIndicator={false}
