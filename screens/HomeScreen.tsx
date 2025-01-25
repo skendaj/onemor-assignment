@@ -43,7 +43,7 @@ export const HomeScreen = () => {
           )
         }
         estimatedItemSize={100}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.7}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
         ItemSeparatorComponent={() => <View height="$2" />}
