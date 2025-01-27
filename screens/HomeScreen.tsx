@@ -1,7 +1,7 @@
 import { View, YStack } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import { useWorkouts } from '@/hooks/useWorkouts';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { WorkoutItem } from '@/components/WorkoutItem';
 import { ViewToken } from 'react-native';
 import { LoadingMore } from '@/components/LoadingMore';
@@ -49,7 +49,7 @@ export const HomeScreen = () => {
           return isLoading ? (
             <WorkoutItemSkeleton />
           ) : (
-            <WorkoutItem item={item} isActive={item.id === activeWorkoutId} />
+            <WorkoutItem key={item.id} item={item} isActive={item.id === activeWorkoutId} />
           );
         }}
         estimatedItemSize={100}
@@ -69,7 +69,13 @@ export const HomeScreen = () => {
             fetchNextPage();
           }
         }}
-        ListFooterComponent={isFetchingNextPage ? <LoadingMore /> : null}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View pt="$4">
+              <LoadingMore />
+            </View>
+          ) : null
+        }
         viewabilityConfig={viewabilityConfig}
         onViewableItemsChanged={onViewableItemsChanged}
       />
