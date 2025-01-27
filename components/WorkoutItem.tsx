@@ -23,8 +23,6 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
   const [isPressed, setIsPressed] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
-  console.log('currentRoutineIndex:', currentRoutineIndex);
-
   useEffect(() => {
     return () => {
       isMounted.current = false;
