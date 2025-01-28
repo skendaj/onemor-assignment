@@ -1,12 +1,9 @@
-import { View, YStack } from 'tamagui';
-import { FlashList } from '@shopify/flash-list';
+import { YStack, View } from 'tamagui';
+import { FlatList, ViewToken, Image } from 'react-native';
+import { WorkoutItem, WorkoutItemSkeleton } from '@/components';
 import { useWorkouts } from '@/hooks/useWorkouts';
-import { useState, useRef, useCallback } from 'react';
-import { WorkoutItem } from '@/components/WorkoutItem';
-import { ViewToken } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
 import { LoadingMore } from '@/components/LoadingMore';
-import { WorkoutItemSkeleton } from '@/components';
-import { Image } from 'expo-image';
 
 export const HomeScreen = () => {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useWorkouts();
@@ -33,51 +30,73 @@ export const HomeScreen = () => {
     []
   );
 
-  // useEffect(() => {
-  //   if (!isLoading && workouts.length > 0) {
-  //     setActiveWorkoutId(workouts[0].id);
-  //   }
-  // }, [isLoading, workouts]);
+  const viewabilityConfigCallbackPairs = useRef([
+    {
+      viewabilityConfig,
+      onViewableItemsChanged,
+    },
+  ]).current;
+
+  const renderItem = useCallback(
+    ({ item }: { item: any }) => {
+      if (isLoading) {
+        return <WorkoutItemSkeleton />;
+      }
+      if (!item?.id) return null;
+
+      return <WorkoutItem key={item.id} item={item} isActive={item.id === activeWorkoutId} />;
+    },
+    [isLoading, activeWorkoutId]
+  );
+
+  const keyExtractor = useCallback((item: any) => item?.id || Math.random().toString(), []);
+
+  const ListHeaderComponent = useCallback(
+    () => (
+      <Image
+        source={require('../assets/images/onemor-text-logo.png')}
+        style={{ width: 100, height: 50, alignSelf: 'flex-end' }}
+        resizeMode="contain"
+      />
+    ),
+    []
+  );
+
+  const ListFooterComponent = useCallback(
+    () =>
+      isFetchingNextPage ? (
+        <View pt="$4">
+          <LoadingMore />
+        </View>
+      ) : null,
+    [isFetchingNextPage]
+  );
+
+  const ItemSeparatorComponent = useCallback(() => <View height="$2" />, []);
+
+  const onEndReached = useCallback(() => {
+    if (!isFetchingNextPage && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 
   return (
     <YStack flex={1} padding="$4">
-      <FlashList
-        keyExtractor={(item) => item?.id || Math.random().toString()}
+      <FlatList
         data={isLoading ? Array(3).fill({ id: undefined }) : workouts}
-        renderItem={({ item }) => {
-          if (isLoading) {
-            return <WorkoutItemSkeleton />;
-          }
-          if (!item?.id) return null;
-
-          return <WorkoutItem key={item.id} item={item} isActive={item.id === activeWorkoutId} />;
-        }}
-        estimatedItemSize={100}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        onEndReached={onEndReached}
         onEndReachedThreshold={0.7}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
-        ItemSeparatorComponent={() => <View height="$2" />}
-        ListHeaderComponent={() => (
-          <Image
-            source={require('../assets/images/onemor-text-logo.png')}
-            style={{ width: 100, height: 50, alignSelf: 'flex-end' }}
-            contentFit="contain"
-          />
-        )}
-        onEndReached={() => {
-          if (!isFetchingNextPage && hasNextPage) {
-            fetchNextPage();
-          }
-        }}
-        ListFooterComponent={
-          isFetchingNextPage ? (
-            <View pt="$4">
-              <LoadingMore />
-            </View>
-          ) : null
-        }
-        viewabilityConfig={viewabilityConfig}
-        onViewableItemsChanged={onViewableItemsChanged}
+        maxToRenderPerBatch={5}
+        windowSize={5}
+        initialNumToRender={3}
+        ItemSeparatorComponent={ItemSeparatorComponent}
+        ListHeaderComponent={ListHeaderComponent}
+        ListFooterComponent={ListFooterComponent}
+        viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs}
       />
     </YStack>
   );
