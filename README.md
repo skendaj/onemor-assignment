@@ -1,4 +1,4 @@
-# Fitness Application Homepage Task
+# OneMor Task
 
 This project involves creating a **homepage for a fitness application** using **React Native**. The homepage will display a workout feed in a TikTok-style story format, with swipe navigation for routines and workouts. The app should function seamlessly on both **iOS** and **Android** platforms.
 
