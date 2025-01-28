@@ -1,90 +1,162 @@
-# OneMor Task
+# One More Fitness App - Technical Overview
 
-This project involves creating a **homepage for a fitness application** using **React Native**. The homepage will display a workout feed in a TikTok-style story format, with swipe navigation for routines and workouts. The app should function seamlessly on both **iOS** and **Android** platforms.
+## 🛠️ Core Technologies
 
-Data for the workout feed will be fetched from the API: `https://app.onemor.com/api/workout-feed`. Authentication will require a **Bearer Token**, and the API response will provide all necessary workout and routine data.
+### React Native & Expo
 
----
+- Built with React Native 0.76.6 and Expo SDK 52
+- Uses Expo Router for file-based routing
+- Implements Expo's specialized modules:
+  - expo-video for video playback
+  - expo-image for optimized image loading
+  - expo-linear-gradient for UI effects
+  - expo-haptics for tactile feedback
 
-## Features
+### UI Framework
 
-### API Integration
+- Tamagui as the primary UI framework (v1.123.0)
+- Includes multiple Tamagui packages for:
+  - Animations
+  - Icons
+  - Theming
+  - Typography (Inter font)
 
-- **Endpoint**: `https://app.onemor.com/api/workout-feed`
-- **Headers**:
-  - `Accept: application/json`
-  - `Authorization: Bearer <TOKEN>`
-- **Data Handling**:
-  - Infinite scrolling for loading more workouts.
-  - Lazy loading of assets for optimized performance.
+### State Management & Data Fetching
 
-### UI/UX
+- TanStack Query (React Query) v5.64.2 for:
+  - API data fetching
+  - Infinite scrolling
+  - Cache management
+- Axios for HTTP requests
 
-- **Workout Stories**:
+### Animations & Gestures
 
-  - Swipe **Up/Down**: Navigate between workouts.
-  - Swipe **Left/Right**: Switch routines within a workout.
-  - Display workout details, including:
-    - Workout Name
-    - Trainer Profile Image
-    - Workout Duration
-    - Workout Difficulty
-  - Display video and video thumbnail for routines.
+- React Native Reanimated ~3.16.1
+- React Native Gesture Handler ~2.20.2
+- Moti for declarative animations
 
-- **Routine Details**:
-  - Routine Name
-  - Routine Video Source
+## 📱 Development Setup
 
-### Performance
+1. Install dependencies:
 
-- Optimize video loading and transitions.
-- Use shimmer effects for loading states.
+```bash
+npm install
+```
 
----
+2. Start development:
 
-## Rendering Data from the API Response
+```bash
+# For iOS
+npm run ios
 
-### 1. Workout Display
+# For Android
+npm run android
 
-- **Workout Name**: `data.name`
-- **Workout Duration**: `data.total_time` (in minutes and seconds)
-- **Workout Difficulty**: `data.difficulty` (mapped as follows):
-  - `0`: Beginner
-  - `1`: Intermediate
-  - `2`: Advanced
-- **Trainer Profile Image**: `data.user.profile_photo_url`
+# For web (experimental)
+npm run web
+```
 
-### 2. Routine Navigation (Swipe Left/Right)
+## 🧪 Testing
 
-- Workouts consist of multiple routines, found in the `data.routines` array.
-- For each routine:
-  - **Routine Name**: `data.routines[n].name`
-  - **Video Source**: `data.routines[n].video.playlist_url`
+The project uses Jest with jest-expo preset:
 
-### 3. Example Swipe Workflow
+```bash
+npm test
+```
 
-- **Routine Swipe (Left/Right)**:
-  - Updates the routine name and loads the corresponding video.
-- **Workout Swipe (Up/Down)**:
-  - Navigates to the next/previous workout, displaying its details and the first routine by default.
+## 📦 Key Dependencies
 
----
+### Frontend Framework
 
-## Design Guide
+- React Native 0.76.6
+- Expo SDK 52
+- TypeScript
 
-Refer to the design guide on **Figma** for layout and styling:
-[Onemor Homepage Test](https://www.figma.com/design/67ZQ5JSqwvHBg6z3jIoUvv/Onemor-Homepage-Test)
+### UI & Styling
 
----
+- Tamagui UI Framework
+- Expo Linear Gradient
+- React Native Reanimated
+- Moti for animations
+- Expo Image for optimized image loading
 
-## Bonus Points
+### Video & Media
 
-- Smooth transitions between routines and workouts.
-- Shimmer effects during data loading.
-- Well-optimized performance for video rendering.
+- Expo Video with features:
+  - Background playback
+  - Picture in Picture
+  - Video caching
+  - Next video preloading
 
----
+### State Management & Data Fetching
 
-## Final Notes
+- TanStack Query (React Query)
+- Axios for HTTP requests
 
-Best of luck! Show off your creativity and technical skills with this project. 💪
+### Navigation & Routing
+
+- Expo Router
+- React Navigation
+
+### Performance & Optimization
+
+- React Native Gesture Handler
+- Expo Image caching
+- FlashList for optimized lists
+
+### Development & Testing
+
+- Jest with Expo preset
+- ESLint with TanStack Query plugin
+- TypeScript for type safety
+
+### Native Features
+
+- Expo Haptics
+- Expo Constants
+- Expo Status Bar
+- Safe Area Context
+
+### Additional Tools
+
+- Expo Font for custom typography
+- Expo Splash Screen
+- Expo Web Browser
+- Lucide Icons
+- React Native SVG
+- React Native WebView
+
+## 🏗️ Project Structure
+
+The application follows a modular architecture with:
+
+- `/app` - File-based routing using Expo Router
+- `/components` - Reusable UI components
+- `/hooks` - Custom React hooks
+- `/api` - API integration layer
+- `/types` - TypeScript type definitions
+- `/assets` - Static assets and resources
+
+## 🔧 Configuration
+
+The project includes configuration for:
+
+- TypeScript
+- Jest testing
+- Babel with environment variables support
+- ESLint with TanStack Query plugin
+- Native platform-specific settings (iOS/Android)
+
+## 📱 Platform Support
+
+- iOS: Minimum deployment target 15.1
+- Android: Configured with modern architecture support
+- Web: Experimental support with Metro bundler
+
+## 🚀 Development Features
+
+- Hot reloading
+- Development client support
+- Debug and release configurations
+- Native module linking
+- Type checking and linting
