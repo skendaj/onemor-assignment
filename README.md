@@ -1,50 +1,90 @@
-# Welcome to your Expo app 👋
+# Fitness Application Homepage Task
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This project involves creating a **homepage for a fitness application** using **React Native**. The homepage will display a workout feed in a TikTok-style story format, with swipe navigation for routines and workouts. The app should function seamlessly on both **iOS** and **Android** platforms.
 
-## Get started
+Data for the workout feed will be fetched from the API: `https://app.onemor.com/api/workout-feed`. Authentication will require a **Bearer Token**, and the API response will provide all necessary workout and routine data.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+### API Integration
 
-   ```bash
-    npx expo start
-   ```
+- **Endpoint**: `https://app.onemor.com/api/workout-feed`
+- **Headers**:
+  - `Accept: application/json`
+  - `Authorization: Bearer <TOKEN>`
+- **Data Handling**:
+  - Infinite scrolling for loading more workouts.
+  - Lazy loading of assets for optimized performance.
 
-In the output, you'll find options to open the app in a
+### UI/UX
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Workout Stories**:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+  - Swipe **Up/Down**: Navigate between workouts.
+  - Swipe **Left/Right**: Switch routines within a workout.
+  - Display workout details, including:
+    - Workout Name
+    - Trainer Profile Image
+    - Workout Duration
+    - Workout Difficulty
+  - Display video and video thumbnail for routines.
 
-## Get a fresh project
+- **Routine Details**:
+  - Routine Name
+  - Routine Video Source
 
-When you're ready, run:
+### Performance
 
-```bash
-npm run reset-project
-```
+- Optimize video loading and transitions.
+- Use shimmer effects for loading states.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Rendering Data from the API Response
 
-To learn more about developing your project with Expo, look at the following resources:
+### 1. Workout Display
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **Workout Name**: `data.name`
+- **Workout Duration**: `data.total_time` (in minutes and seconds)
+- **Workout Difficulty**: `data.difficulty` (mapped as follows):
+  - `0`: Beginner
+  - `1`: Intermediate
+  - `2`: Advanced
+- **Trainer Profile Image**: `data.user.profile_photo_url`
 
-## Join the community
+### 2. Routine Navigation (Swipe Left/Right)
 
-Join our community of developers creating universal apps.
+- Workouts consist of multiple routines, found in the `data.routines` array.
+- For each routine:
+  - **Routine Name**: `data.routines[n].name`
+  - **Video Source**: `data.routines[n].video.playlist_url`
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 3. Example Swipe Workflow
+
+- **Routine Swipe (Left/Right)**:
+  - Updates the routine name and loads the corresponding video.
+- **Workout Swipe (Up/Down)**:
+  - Navigates to the next/previous workout, displaying its details and the first routine by default.
+
+---
+
+## Design Guide
+
+Refer to the design guide on **Figma** for layout and styling:
+[Onemor Homepage Test](https://www.figma.com/design/67ZQ5JSqwvHBg6z3jIoUvv/Onemor-Homepage-Test)
+
+---
+
+## Bonus Points
+
+- Smooth transitions between routines and workouts.
+- Shimmer effects during data loading.
+- Well-optimized performance for video rendering.
+
+---
+
+## Final Notes
+
+Best of luck! Show off your creativity and technical skills with this project. 💪
