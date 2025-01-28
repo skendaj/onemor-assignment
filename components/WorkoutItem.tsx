@@ -10,6 +10,8 @@ import { WorkoutFooter } from './WorkoutFooter';
 import { MotiView } from 'moti';
 import { Easing } from 'react-native-reanimated';
 import { SwipeGestureHandler } from './SwipeGestureHandler';
+import { useQueryClient } from '@tanstack/react-query';
+import { useVideoPreloader } from '@/hooks/useVideoPreloader';
 
 interface WorkoutItemProps {
   item: WorkoutPreview;
@@ -23,6 +25,8 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
   const isMounted = useRef(true);
   const [isPressed, setIsPressed] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     return () => {
@@ -91,6 +95,31 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
     initializePlayer();
   }, [currentRoutineIndex, isActive, player]);
 
+  useEffect(() => {
+    if (!currentRoutine) return;
+
+    // Calculate the next routine index
+    const nextIndex = (currentRoutineIndex + 1) % item.routines.length;
+    const nextRoutine = item.routines[nextIndex];
+
+    if (nextRoutine) {
+      // Prefetch the next routine's data
+      queryClient.prefetchQuery({
+        queryKey: ['routine', nextRoutine.id],
+        queryFn: async () => {
+          // Prefetch video and other assets
+          const videoResponse = await fetch(nextRoutine.video.playlist_url);
+          const video = await videoResponse.blob();
+
+          return {
+            ...nextRoutine,
+            videoBlob: video,
+          };
+        },
+      });
+    }
+  }, [currentRoutineIndex, item.routines, queryClient]);
+
   const changeRoutine = useCallback(
     (direction: 'next' | 'prev') => {
       setProgress(0);
@@ -111,6 +140,8 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
 
   const handlePressIn = () => setIsPressed(true);
   const handlePressOut = () => setIsPressed(false);
+
+  useVideoPreloader(item.routines, currentRoutineIndex);
 
   return (
     <MotiView
