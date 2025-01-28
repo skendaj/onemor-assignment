@@ -29,12 +29,12 @@ export const WorkoutFooter = ({ currentRoutine, item }: WorkoutFooterProps) => {
         <XStack alignItems="center" gap="$2">
           <Clock size={16} color="white" strokeWidth={2} />
           <Text color="white" fontWeight="bold">
-            {formatDuration(item.total_duration)}
+            {formatDuration(item?.total_duration)}
           </Text>
         </XStack>
 
         <Text color="white" fontWeight="bold">
-          {workoutLevelToString(item.difficulty)}
+          {workoutLevelToString(item?.difficulty)}
         </Text>
       </XStack>
     </MotiView>
