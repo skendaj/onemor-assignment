@@ -8,5 +8,6 @@ export function useWorkouts() {
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.meta.current_page + 1,
     getPreviousPageParam: (firstPage) => firstPage.meta.current_page - 1,
+    refetchInterval: 5000,
   });
 }
