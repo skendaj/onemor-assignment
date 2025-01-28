@@ -103,11 +103,9 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
     const nextRoutine = item.routines[nextIndex];
 
     if (nextRoutine) {
-      // Prefetch the next routine's data
       queryClient.prefetchQuery({
         queryKey: ['routine', nextRoutine.id],
         queryFn: async () => {
-          // Prefetch video and other assets
           const videoResponse = await fetch(nextRoutine.video.playlist_url);
           const video = await videoResponse.blob();
 

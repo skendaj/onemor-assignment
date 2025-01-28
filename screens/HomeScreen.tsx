@@ -1,12 +1,13 @@
 import { YStack, View } from 'tamagui';
-import { FlatList, ViewToken, Image } from 'react-native';
+import { FlatList, ViewToken, Image, RefreshControl } from 'react-native';
 import { WorkoutItem, WorkoutItemSkeleton } from '@/components';
 import { useWorkouts } from '@/hooks/useWorkouts';
 import { useCallback, useRef, useState } from 'react';
 import { LoadingMore } from '@/components/LoadingMore';
 
 export const HomeScreen = () => {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useWorkouts();
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch, isRefetching } =
+    useWorkouts();
   const workouts = data?.pages.flatMap((page) => page.data) ?? [];
 
   const [activeWorkoutId, setActiveWorkoutId] = useState<string | null>(() => {
@@ -80,6 +81,10 @@ export const HomeScreen = () => {
     }
   }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   return (
     <YStack flex={1} padding="$4">
       <FlatList
@@ -97,6 +102,14 @@ export const HomeScreen = () => {
         ListHeaderComponent={ListHeaderComponent}
         ListFooterComponent={ListFooterComponent}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={onRefresh}
+            tintColor="white"
+            titleColor="white"
+          />
+        }
       />
     </YStack>
   );
