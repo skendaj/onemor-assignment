@@ -9,21 +9,12 @@ import { WorkoutHeader } from './WorkoutHeader';
 import { WorkoutFooter } from './WorkoutFooter';
 import { MotiView } from 'moti';
 import { Easing } from 'react-native-reanimated';
-import { PanGestureHandler } from 'react-native-gesture-handler';
-import Animated, {
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
+import { SwipeGestureHandler } from './SwipeGestureHandler';
 
 interface WorkoutItemProps {
   item: WorkoutPreview;
   isActive: boolean;
 }
-
-const SWIPE_THRESHOLD = 80;
 
 export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
   const [currentRoutineIndex, setCurrentRoutineIndex] = useState(0);
@@ -32,7 +23,6 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
   const isMounted = useRef(true);
   const [isPressed, setIsPressed] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const translateX = useSharedValue(0);
 
   useEffect(() => {
     return () => {
@@ -103,45 +93,21 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
 
   const changeRoutine = useCallback(
     (direction: 'next' | 'prev') => {
-      if (direction === 'next' && currentRoutineIndex < item.routines.length - 1) {
-        setCurrentRoutineIndex((prev) => prev + 1);
-      } else if (direction === 'prev' && currentRoutineIndex > 0) {
-        setCurrentRoutineIndex((prev) => prev - 1);
-      }
-    },
-    [currentRoutineIndex, item.routines.length]
-  );
+      setProgress(0);
+      setCurrentRoutineIndex((prev) => {
+        let newIndex = direction === 'next' ? prev + 1 : prev - 1;
 
-  const gestureHandler = useAnimatedGestureHandler({
-    onStart: () => {
-      runOnJS(setIsPressed)(true);
-    },
-    onActive: (event) => {
-      translateX.value = event.translationX;
-    },
-    onEnd: (event) => {
-      runOnJS(setIsPressed)(false);
+        if (newIndex >= item.routines.length) newIndex = 0;
+        if (newIndex < 0) newIndex = item.routines.length - 1;
 
-      if (Math.abs(event.translationX) > SWIPE_THRESHOLD) {
-        if (event.translationX > 0) {
-          runOnJS(changeRoutine)('prev');
-        } else {
-          runOnJS(changeRoutine)('next');
-        }
-      }
-
-      translateX.value = withSpring(0, {
-        damping: 20,
-        stiffness: 200,
+        return newIndex;
       });
     },
-  });
+    [item.routines.length]
+  );
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value }],
-    };
-  });
+  const goToPreviousRoutine = useCallback(() => changeRoutine('prev'), [changeRoutine]);
+  const goToNextRoutine = useCallback(() => changeRoutine('next'), [changeRoutine]);
 
   const handlePressIn = () => setIsPressed(true);
   const handlePressOut = () => setIsPressed(false);
@@ -157,108 +123,106 @@ export const WorkoutItem = ({ item, isActive }: WorkoutItemProps) => {
         mass: 0.5,
       }}
     >
-      <PanGestureHandler onGestureEvent={gestureHandler}>
-        <Animated.View style={animatedStyle}>
-          <YStack flex={1} height={500} borderRadius="$4" overflow="hidden">
-            {currentRoutine && (
-              <MotiView
-                key={`${currentRoutine.id}-${currentRoutineIndex}`}
-                from={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: 1,
-                }}
-                exit={{
-                  opacity: 0,
-                }}
-                transition={{
-                  type: 'timing',
-                  duration: 400,
-                  easing: Easing.bezier(0.4, 0, 0.2, 1),
-                }}
-                style={{ flex: 1 }}
-              >
-                {!isVideoLoaded && item.video_cover?.thumbnail_url && (
-                  <Image
-                    source={{ uri: item.video_cover.thumbnail_url }}
-                    style={{
-                      position: 'absolute',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  />
-                )}
-                <Stack flex={1}>
-                  <VideoView
-                    player={player}
-                    style={{ flex: 1 }}
-                    contentFit="cover"
-                    nativeControls={false}
-                  />
-                  <LinearGradient
-                    colors={['rgba(0,0,0,1)', 'rgba(0,0,0,0)']}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: 100,
-                    }}
-                  />
-                  <LinearGradient
-                    colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.4)']}
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: 100,
-                    }}
-                  />
-                  <Pressable
-                    onPress={() => changeRoutine('prev')}
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                    style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: '30%',
-                    }}
-                  />
-                  <Pressable
-                    onPress={() => changeRoutine('next')}
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                    style={{
-                      position: 'absolute',
-                      right: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: '30%',
-                    }}
-                  />
-                </Stack>
-
-                <ProgressIndicators
-                  routines={item.routines}
-                  currentRoutineIndex={currentRoutineIndex}
-                  progress={progress}
+      <SwipeGestureHandler onSwipeLeft={goToNextRoutine} onSwipeRight={goToPreviousRoutine}>
+        <YStack flex={1} height={500} borderRadius="$4" overflow="hidden">
+          {currentRoutine && (
+            <MotiView
+              key={`${currentRoutine.id}-${currentRoutineIndex}`}
+              from={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+              exit={{
+                opacity: 0,
+              }}
+              transition={{
+                type: 'timing',
+                duration: 400,
+                easing: Easing.bezier(0.4, 0, 0.2, 1),
+              }}
+              style={{ flex: 1 }}
+            >
+              {!isVideoLoaded && item.video_cover?.thumbnail_url && (
+                <Image
+                  source={{ uri: item.video_cover.thumbnail_url }}
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                  }}
                 />
-
-                <WorkoutHeader
-                  item={item}
-                  currentRoutine={currentRoutine}
-                  currentRoutineIndex={currentRoutineIndex}
+              )}
+              <Stack flex={1}>
+                <VideoView
+                  player={player}
+                  style={{ flex: 1 }}
+                  contentFit="cover"
+                  nativeControls={false}
                 />
-                <WorkoutFooter currentRoutine={currentRoutine} item={item} />
-              </MotiView>
-            )}
-          </YStack>
-        </Animated.View>
-      </PanGestureHandler>
+                <LinearGradient
+                  colors={['rgba(0,0,0,1)', 'rgba(0,0,0,0)']}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 100,
+                  }}
+                />
+                <LinearGradient
+                  colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.4)']}
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 100,
+                  }}
+                />
+                <Pressable
+                  onPress={goToPreviousRoutine}
+                  onPressIn={handlePressIn}
+                  onPressOut={handlePressOut}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '30%',
+                  }}
+                />
+                <Pressable
+                  onPress={goToNextRoutine}
+                  onPressIn={handlePressIn}
+                  onPressOut={handlePressOut}
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '30%',
+                  }}
+                />
+              </Stack>
+
+              <ProgressIndicators
+                routines={item.routines}
+                currentRoutineIndex={currentRoutineIndex}
+                progress={progress}
+              />
+
+              <WorkoutHeader
+                item={item}
+                currentRoutine={currentRoutine}
+                currentRoutineIndex={currentRoutineIndex}
+              />
+              <WorkoutFooter currentRoutine={currentRoutine} item={item} />
+            </MotiView>
+          )}
+        </YStack>
+      </SwipeGestureHandler>
     </MotiView>
   );
 };
