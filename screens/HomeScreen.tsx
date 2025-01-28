@@ -42,15 +42,15 @@ export const HomeScreen = () => {
   return (
     <YStack flex={1} padding="$4">
       <FlashList
-        keyExtractor={(item) => item.id}
-        data={isLoading ? Array(3).fill({}) : workouts}
+        keyExtractor={(item) => item?.id || Math.random().toString()}
+        data={isLoading ? Array(3).fill({ id: undefined }) : workouts}
         renderItem={({ item }) => {
-          console.log('item.id - activeWorkoutId:', item.id, activeWorkoutId);
-          return isLoading ? (
-            <WorkoutItemSkeleton />
-          ) : (
-            <WorkoutItem key={item.id} item={item} isActive={item.id === activeWorkoutId} />
-          );
+          if (isLoading) {
+            return <WorkoutItemSkeleton />;
+          }
+          if (!item?.id) return null;
+
+          return <WorkoutItem key={item.id} item={item} isActive={item.id === activeWorkoutId} />;
         }}
         estimatedItemSize={100}
         onEndReachedThreshold={0.7}
